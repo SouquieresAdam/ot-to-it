@@ -20,17 +20,16 @@
   "plc.output.fields.date":"STRING",
   "plc.output.fields.fabricationId":"STRING",
   "plc.output.fields.weight":"STRING",
-  "plc.output.fields.operation.subField1":"STRING",
-  "plc.output.fields.operation.subField2":"STRING_ARRAY",
-  "plc.output.fields.operation.subField3":"STRING",
-  "plc.output.fields.operation.details.subSubField1":"STRING",
+  "plc.output.fields.operation.mixing.mixingDuration":"FLOAT",
+  "plc.output.fields.operation.curing.curingDuration":"FLOAT",
+
 
   "plc.mappings.machine1.id.path":"ns=2;s=Id_1:STRING",
   "plc.mappings.machine1.date.path":"ns=2;s=Fabrication_Date_1:STRING",
   "plc.mappings.machine1.fabricationId.path":"ns=2;s=Fabrication_Id_1:STRING",
   "plc.mappings.machine1.weight.path":"ns=2;s=Fabrication_Weight_1:STRING",
-  "plc.mappings.machine1.mixingDuration":"ns=2;s=Mixing_Duration_1:STRING",
-  "plc.mappings.machine1.curingDuration":"ns=2;s=Curing_Duration_1:STRING",
+  "plc.mappings.machine1.mixingDuration":"ns=2;s=Mixing_Duration_1:FLOAT",
+  "plc.mappings.machine1.curingDuration":"ns=2;s=Curing_Duration_1:FLOAT",
 
 
 
@@ -38,14 +37,14 @@
   "plc.mappings.machine2.date.path":"ns=2;s=Fabrication_Date_2:STRING",
   "plc.mappings.machine2.fabricationId.path":"ns=2;s=Fabrication_Id_2:STRING",
   "plc.mappings.machine2.weight.path":"ns=2;s=Fabrication_Weight_2:STRING",
-  "plc.mappings.machine2.mixingDuration":"ns=2;s=Mixing_Duration_2:STRING",
-  "plc.mappings.machine2.curingDuration":"ns=2;s=Curing_Duration_2:STRING",
+  "plc.mappings.machine2.mixingDuration":"ns=2;s=Mixing_Duration_2:FLOAT",
+  "plc.mappings.machine2.curingDuration":"ns=2;s=Curing_Duration_2:FLOAT",
 
 
   "plc.mappings.machine3.id.path":"ns=2;s=Id_3:STRING",
   "plc.mappings.machine3.date.path":"ns=2;s=Fabrication_Date_3:STRING",
   "plc.mappings.machine3.fabricationId.path":"ns=2;s=Fabrication_Id_3:STRING",
   "plc.mappings.machine3.weight.path":"ns=2;s=Fabrication_Weight_3:STRING",
-  "plc.mappings.machine3.mixingDuration":"ns=2;s=Mixing_Duration_3:STRING",
-  "plc.mappings.machine3.curingDuration":"ns=2;s=Curing_Duration_3:STRING"
+  "plc.mappings.machine3.mixingDuration":"ns=2;s=Mixing_Duration_3:FLOAT",
+  "plc.mappings.machine3.curingDuration":"ns=2;s=Curing_Duration_3:FLOAT"
 }

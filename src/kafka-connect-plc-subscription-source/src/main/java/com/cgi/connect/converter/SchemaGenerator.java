@@ -18,7 +18,7 @@ public class SchemaGenerator {
    */
   public static Schema generate(Map<String, TreeElement> treeElementMap) {
 
-    var schemaBuilder = SchemaBuilder.struct();
+    var schemaBuilder = SchemaBuilder.struct().name("com.cgi.avro.DefaultPLCEvent");
 
     var firstLevelElements =
         treeElementMap.values().stream().filter(TreeElement::isRoot).collect(Collectors.toList());
@@ -82,7 +82,7 @@ public class SchemaGenerator {
 
     if (el.getChildren().size() > 0) {
       // If it's a sub struct
-      var subBuilder = SchemaBuilder.struct().optional();
+      var subBuilder = SchemaBuilder.struct().optional().name(el.getId() + "_sub_Struct");
       el.getChildren().forEach(child -> buildSchemaField(child, subBuilder));
       builder.field(el.getId(), subBuilder.build());
       return;
@@ -90,7 +90,7 @@ public class SchemaGenerator {
 
     switch (el.getType()) {
       case "FLOAT":
-        builder.field(el.getId(), SchemaBuilder.float64().optional().build());
+        builder.field(el.getId(), SchemaBuilder.OPTIONAL_FLOAT64_SCHEMA);
         return;
       case "STRING":
       default:

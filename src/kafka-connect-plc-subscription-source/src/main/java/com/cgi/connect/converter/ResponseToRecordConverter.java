@@ -28,12 +28,8 @@ public class ResponseToRecordConverter {
 
     mapping.forEach(
         mappingPair -> {
-
-           try {
-               fillSchema(outputValue, fieldTreeElements, mappingPair.getKey(), response, 0);
-           } catch (Exception e) {
-               int stopHere = 1;
-           };
+            fillSchema(outputValue, fieldTreeElements, mappingPair.getKey(), response, 0);
+          ;
         });
 
     // Build output record key

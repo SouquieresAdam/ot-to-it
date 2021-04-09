@@ -81,64 +81,63 @@ public class PollRunner implements Runnable {
 
   @Override
   public void run() {
+      // Pour chaque tag
+      for (String subscription : subscriptions) {
 
-    // Pour chaque tag
-    for (String subscription : subscriptions) {
+        var subscriptionMapping = mappings.get(subscription);
+        var subPath = subscriptionPath.get(subscription);
 
-      var subscriptionMapping = mappings.get(subscription);
-      var subPath = subscriptionPath.get(subscription);
+        var subField =
+            subscriptionMapping.stream()
+                .filter(pair -> pair.getValue().equals(subPath))
+                .map(Pair::getKey)
+                .findFirst()
+                .get();
 
-      var subField =
-          subscriptionMapping.stream()
-              .filter(pair -> pair.getValue().equals(subPath))
-              .map(Pair::getKey)
-              .findFirst()
-              .get();
+        // Lecture synchrone des champs associés
+        var readBuilder = plcConnection.readRequestBuilder();
+        subscriptionMapping.forEach(
+            mappingPair -> readBuilder.addItem(mappingPair.getKey(), mappingPair.getValue()));
 
-      // Lecture synchrone des champs associés
-      var readBuilder = plcConnection.readRequestBuilder();
-      subscriptionMapping.forEach(
-          mappingPair -> readBuilder.addItem(mappingPair.getKey(), mappingPair.getValue()));
+        var asyncResponse = readBuilder.build().execute();
 
-      var asyncResponse = readBuilder.build().execute();
+        asyncResponse.whenComplete(
+            (response, throwable) -> {
+              if (response != null) {
 
-      asyncResponse.whenComplete(
-          (response, throwable) -> {
-            if (response != null) {
+                var newValue = extractFieldFromResponse(response, subField);
+                var currentValue = valueBuffer.get(subPath);
 
-              var newValue = extractFieldFromResponse(response, subField);
-              var currentValue = valueBuffer.get(subPath);
+                // First Value is kept as memory an will be the first reference value
+                if (currentValue == null) {
+                  valueBuffer.put(subPath, newValue);
+                  return;
+                }
 
-              // First Value is kept as memory an will be the first reference value
-              if (currentValue == null) {
+                // Only send an event when "subscribed" field change
+                if (currentValue.equals(newValue)) {
+                  return;
+                }
+
                 valueBuffer.put(subPath, newValue);
-                return;
+                var sourceRecord =
+                    ResponseToRecordConverter.convert(
+                        response,
+                        kafkaTopic,
+                        outputSchema,
+                        subscriptionMapping,
+                        keyComposition,
+                        fieldTreeElements);
+                try {
+                  eventQueue.put(sourceRecord);
+                } catch (InterruptedException e) {
+                  log.error("Interrupted during event queue enrishment", e);
+                }
+              } else {
+                log.error("Error during read request", throwable);
               }
-
-              // Only send an event when "subscribed" field change
-              if (currentValue.equals(newValue)) {
-                return;
-              }
-
-              valueBuffer.put(subPath, newValue);
-              var sourceRecord =
-                  ResponseToRecordConverter.convert(
-                      response,
-                      kafkaTopic,
-                      outputSchema,
-                      subscriptionMapping,
-                      keyComposition,
-                      fieldTreeElements);
-              try {
-                eventQueue.put(sourceRecord);
-              } catch (InterruptedException e) {
-                log.error("Interrupted during event queue enrishment", e);
-              }
-            } else {
-              log.error("Error during read request", throwable);
-            }
-          });
-    }
+            });
+      }
   }
 
   private Object extractFieldFromResponse(PlcReadResponse response, String key) {
@@ -152,7 +151,5 @@ public class PollRunner implements Runnable {
       default:
         return response.getString(key);
     }
-
   }
-
 }

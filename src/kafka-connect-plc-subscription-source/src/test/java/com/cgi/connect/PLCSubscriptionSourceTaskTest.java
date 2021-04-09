@@ -126,8 +126,7 @@ public class PLCSubscriptionSourceTaskTest {
       when(readRequestMock.execute()).thenReturn(readFuture, readFuture2, readFuture3);
       when(response.getString(anyString()))
           .thenReturn("1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
-      when(response.getFloat(anyString()))
-              .thenReturn(1f, 2f);
+      when(response.getFloat(anyString())).thenReturn(1f, 2f);
 
       var runner = new PollRunner();
       runner.configure(sourceProperties);

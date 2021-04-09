@@ -7,7 +7,6 @@ import com.cgi.connect.converter.SchemaGenerator;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.kafka.connect.data.Schema;
-import org.apache.kafka.connect.data.SchemaBuilder;
 import org.junit.jupiter.api.Test;
 
 public class SchemaGeneratorTest {
@@ -22,7 +21,7 @@ public class SchemaGeneratorTest {
     sourceProperties.put(
         PLCSubscriptionSourceConfig.OUTPUT_FIELDS + ".operation.subField1", "STRING");
     sourceProperties.put(
-        PLCSubscriptionSourceConfig.OUTPUT_FIELDS + ".operation.subField2", "STRING_ARRAY");
+        PLCSubscriptionSourceConfig.OUTPUT_FIELDS + ".operation.subField2", "STRING");
     sourceProperties.put(
         PLCSubscriptionSourceConfig.OUTPUT_FIELDS + ".operation.subField3", "STRING");
     sourceProperties.put(
@@ -36,7 +35,7 @@ public class SchemaGeneratorTest {
     assertNotNull(result.field("operation").schema().field("subField1"));
     assertEquals(
         result.field("operation").schema().field("subField2").schema(),
-        SchemaBuilder.array(Schema.STRING_SCHEMA).build());
+        Schema.OPTIONAL_STRING_SCHEMA);
     assertNotNull(result.field("operation").schema().field("details"));
     assertNotNull(
         result.field("operation").schema().field("details").schema().field("subSubField1"));
