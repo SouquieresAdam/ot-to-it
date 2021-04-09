@@ -9,6 +9,9 @@ import com.cgi.connect.converter.ResponseToRecordConverter;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
+
+import com.cgi.connect.converter.SchemaGenerator;
+import com.cgi.connect.converter.TreeElement;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
@@ -30,6 +33,7 @@ public class PollRunner implements Runnable {
   private Map<String, String> subscriptionPath;
   private PlcConnection plcConnection;
   private Schema outputSchema;
+  private Map<String, TreeElement> fieldTreeElements;
 
   public void configure(Map<String, String> config) throws PlcConnectionException {
     // retrieve and init configuration values
@@ -44,18 +48,10 @@ public class PollRunner implements Runnable {
     this.valueBuffer = new HashMap<>();
     mappings = ConfigExtractor.mappings(config);
     subscriptionPath = ConfigExtractor.subscriptionsPath(config, subscriptions);
-    var output_fields =
-        Arrays.stream(config.get(OUTPUT_FIELDS).split(",")).collect(Collectors.toList());
 
-    SchemaBuilder schemaBuilder = SchemaBuilder.struct().name("com.cgi.demo.PlcEvent");
-    output_fields.forEach(
-        outputField ->
-            schemaBuilder.field(
-                outputField,
-                Schema.STRING_SCHEMA)); // Register all field from configuration into target schema
+    fieldTreeElements = SchemaGenerator.buildFieldTree(config);
+    outputSchema = SchemaGenerator.generate(fieldTreeElements);
 
-    // build target struct from mapping
-    outputSchema = schemaBuilder.build();
 
     this.plcConnection = ConnectionManager.getConnection(plcConnectionString);
 
@@ -129,7 +125,7 @@ public class PollRunner implements Runnable {
               valueBuffer.put(subPath, newValue);
               var sourceRecord =
                   ResponseToRecordConverter.convert(
-                      response, kafkaTopic, outputSchema, subscriptionMapping, keyComposition);
+                      response, kafkaTopic, outputSchema, subscriptionMapping, keyComposition, fieldTreeElements);
               try {
                 eventQueue.put(sourceRecord);
               } catch (InterruptedException e) {

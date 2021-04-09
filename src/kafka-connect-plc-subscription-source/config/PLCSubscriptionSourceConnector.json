@@ -5,7 +5,6 @@
   "transforms.SetSchemaName.type": "org.apache.kafka.connect.transforms.SetSchemaMetadata$Value",
   "tasks.max": "1",
   "transforms": "SetSchemaName",
-  "mode": "timestamp",
   "topic": "PLCEvent_Demo_Avro",
   "name": "Demo_PLC_Subscription_Source",
   "key.converter": "org.apache.kafka.connect.storage.StringConverter",
@@ -20,9 +19,9 @@
   "plc.output.fields.id":"STRING",
   "plc.output.fields.date":"STRING",
   "plc.output.fields.fabricationId":"STRING",
-  "plc.output.fields.weight":"FLOAT",
+  "plc.output.fields.weight":"STRING",
   "plc.output.fields.operation.subField1":"STRING",
-  "plc.output.fields.operation.subField2":"INTEGER",
+  "plc.output.fields.operation.subField2":"STRING_ARRAY",
   "plc.output.fields.operation.subField3":"STRING",
   "plc.output.fields.operation.details.subSubField1":"STRING",
 
@@ -30,12 +29,27 @@
   "plc.mappings.machine1.date.path":"ns=2;s=Fabrication_Date_1:STRING",
   "plc.mappings.machine1.fabricationId.path":"ns=2;s=Fabrication_Id_1:STRING",
   "plc.mappings.machine1.weight.path":"ns=2;s=Fabrication_Weight_1:STRING",
+  "plc.mappings.machine1.subField1":"ns=2;s=Sub_Field_1_1:STRING",
+  "plc.mappings.machine1.subField2":"ns=2;s=Sub_Field_2_1:STRING",
+  "plc.mappings.machine1.subField3":"ns=2;s=Sub_Field_3_1:STRING",
+  "plc.mappings.machine1.subSubField1":"ns=2;s=SubSub_Field_1_1:STRING",
+
+
   "plc.mappings.machine2.id.path":"ns=2;s=Id_2:STRING",
   "plc.mappings.machine2.date.path":"ns=2;s=Fabrication_Date_2:STRING",
   "plc.mappings.machine2.fabricationId.path":"ns=2;s=Fabrication_Id_2:STRING",
   "plc.mappings.machine2.weight.path":"ns=2;s=Fabrication_Weight_2:STRING",
+  "plc.mappings.machine2.subField1":"ns=2;s=Sub_Field_1_2:STRING",
+  "plc.mappings.machine2.subField2":"ns=2;s=Sub_Field_2_2:STRING",
+  "plc.mappings.machine2.subField3":"ns=2;s=Sub_Field_3_2:STRING",
+  "plc.mappings.machine2.subSubField1":"ns=2;s=SubSub_Field_1_2:STRING",
+
   "plc.mappings.machine3.id.path":"ns=2;s=Id_3:STRING",
   "plc.mappings.machine3.date.path":"ns=2;s=Fabrication_Date_3:STRING",
   "plc.mappings.machine3.fabricationId.path":"ns=2;s=Fabrication_Id_3:STRING",
-  "plc.mappings.machine3.weight.path":"ns=2;s=Fabrication_Weight_3:STRING"
+  "plc.mappings.machine3.weight.path":"ns=2;s=Fabrication_Weight_3:STRING",
+  "plc.mappings.machine3.subField1":"ns=2;s=Sub_Field_1_3:STRING",
+  "plc.mappings.machine3.subField2":"ns=2;s=Sub_Field_2_3:STRING",
+  "plc.mappings.machine3.subField3":"ns=2;s=Sub_Field_3_3:STRING",
+  "plc.mappings.machine3.subSubField1":"ns=2;s=SubSub_Field_1_3:STRING"
 }

@@ -12,18 +12,40 @@ import java.util.stream.Collectors;
 import static com.cgi.connect.PLCSubscriptionSourceConfig.OUTPUT_FIELDS;
 
 public class SchemaGenerator {
-    public static Schema generate(Map<String, String> config) {
+
+    /**
+     * @param treeElementMap  a tree structure of all configured user field from the configuration
+     * @return the output Struct schema
+     */
+    public static Schema generate(Map<String, TreeElement> treeElementMap) {
 
        var schemaBuilder = SchemaBuilder.struct();
-       var fieldDefinitions = config.entrySet().stream()
-               .filter( e -> e.getKey().contains(OUTPUT_FIELDS))
-               .map( e -> Pair.of(e.getKey().replaceFirst(OUTPUT_FIELDS+".", ""), e.getValue()))
-               .collect(Collectors.toList());
+
+        var firstLevelElements = treeElementMap.values().stream()
+                .filter(TreeElement::isRoot)
+                .collect(Collectors.toList());
+
+        firstLevelElements.forEach( el -> buildSchemaField(el, schemaBuilder));
+
+       return schemaBuilder.build();
+    }
 
 
-       var treeElements = new HashMap<String, TreeElement>();
+    /**
+     * @param config the configuration properties map
+     * @return a tree structure of all configured user field from the configuration
+     */
+    public static Map<String, TreeElement> buildFieldTree(Map<String, String> config) {
 
-       // Create all tree elements
+
+        var fieldDefinitions = config.entrySet().stream()
+                .filter( e -> e.getKey().contains(OUTPUT_FIELDS))
+                .map( e -> Pair.of(e.getKey().replaceFirst(OUTPUT_FIELDS+".", ""), e.getValue()))
+                .collect(Collectors.toList());
+
+        var treeElements = new HashMap<String, TreeElement>();
+
+        // Create all tree elements
         fieldDefinitions.stream()
                 .flatMap( fieldEntry -> Arrays.stream(fieldEntry.getKey().split("\\.")))
                 .forEach(subField -> treeElements.computeIfAbsent(subField, TreeElement::of));
@@ -35,6 +57,7 @@ public class SchemaGenerator {
             for (int i = 0; i<fieldSplit.length; i++) {
 
                 var currentField = treeElements.get(fieldSplit[i]);
+                currentField.setDepth(i);
 
                 if(i ==  fieldSplit.length - 1) {
                     // if it's the last
@@ -54,31 +77,29 @@ public class SchemaGenerator {
             }
         });
 
-        var firstLevelElements = treeElements.values().stream()
-                .filter(TreeElement::isRoot)
-                .collect(Collectors.toList());
-
-        firstLevelElements.forEach( el -> buildField(el, schemaBuilder));
-
-       return schemaBuilder.build();
+        return treeElements;
     }
 
-    private static void buildField(TreeElement el, SchemaBuilder builder) {
+
+    private static void buildSchemaField(TreeElement el, SchemaBuilder builder) {
 
 
         if(el.getChildren().size() > 0) {
             // If it's a sub struct
-            var subBuilder = SchemaBuilder.struct();
-            el.getChildren().forEach( child -> buildField(child, subBuilder));
+            var subBuilder = SchemaBuilder.struct().optional();
+            el.getChildren().forEach( child -> buildSchemaField(child, subBuilder));
             builder.field(el.getId(), subBuilder.build());
             return;
         }
 
 
         switch(el.getType()) {
+            case "STRING_ARRAY":
+                builder.field(el.getId(), SchemaBuilder.array(Schema.STRING_SCHEMA).build());
+                return;
             case "STRING":
             default:
-                builder.field(el.getId(), Schema.STRING_SCHEMA);
+                builder.field(el.getId(), Schema.OPTIONAL_STRING_SCHEMA);
             //TODO Handle some more data types
         }
     }

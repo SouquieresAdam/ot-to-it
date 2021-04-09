@@ -1,9 +1,5 @@
 package com.cgi.connect.converter;
-
-
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class TreeElement {
@@ -11,12 +7,20 @@ public class TreeElement {
     private TreeElement parent;
     private String id;
     private String type;
+    private int depth = 0;
     private final Set<TreeElement> children = new HashSet<>();
 
     public void setParent(TreeElement parent) {
         this.parent = parent;
     }
 
+    public int getDepth() {
+        return depth;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
 
     public String getType() {
         return type;
@@ -60,5 +64,22 @@ public class TreeElement {
 
     public Set<TreeElement> getChildren() {
         return this.children;
+    }
+
+    public static TreeElement getAncestor(TreeElement child, int depth) {
+        if(depth > child.getDepth() || depth < 0) {
+            throw new IllegalStateException(child.getId() +" field isn't deep ("+child.getDepth()+") enought for this request ("+depth+")");
+        }
+
+        if(depth == child.getDepth()) {
+            return child;
+        }
+
+        if(child.parent == null) {
+            throw new IllegalStateException(child.getId() +" field is misconfigured");
+        }
+
+
+        return getAncestor(child.getParent(), depth);
     }
 }

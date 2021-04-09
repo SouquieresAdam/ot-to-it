@@ -18,9 +18,6 @@ public class PLCSubscriptionSourceConfig extends AbstractConfig {
   private static final String OUTPUT_KEY_DOC =
       "Comma separated list of output model fields used for key construction";
 
-  public static final String OUTPUT_FIELDS = "plc.output.fields";
-  private static final String OUTPUT_FIELDS_DOC = "Comma separated list of output model fields";
-
   public static final String PLC_CONNECTION_STRING = "plc.connection.string";
   private static final String PLC_CONNECTION_STRING_DOC =
       "The connection string to contact the PLC server.";
@@ -33,7 +30,6 @@ public class PLCSubscriptionSourceConfig extends AbstractConfig {
       new ConfigDef()
           .define(KAFKA_TOPIC, Type.STRING, Importance.HIGH, KAFKA_TOPIC_DOC)
           .define(SUBSCRIPTIONS, Type.STRING, Importance.HIGH, SUBSCRIPTIONS_DOC)
-          .define(OUTPUT_FIELDS, Type.STRING, Importance.HIGH, OUTPUT_FIELDS_DOC)
           .define(OUTPUT_KEY, Type.STRING, Importance.HIGH, OUTPUT_KEY_DOC)
           .define(PLC_POLL_INTERVAL, Type.STRING, Importance.HIGH, PLC_POLL_INTERVAL_DOC)
           .define(PLC_CONNECTION_STRING, Type.STRING, Importance.HIGH, PLC_CONNECTION_STRING_DOC);

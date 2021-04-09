@@ -40,40 +40,48 @@ public class PLCSubscriptionSourceTaskTest {
 
       var sourceProperties = new HashMap<String, String>();
       sourceProperties.put(PLCSubscriptionSourceConfig.SUBSCRIPTIONS, "machine1,machine2,machine3");
-      sourceProperties.put(
-          PLCSubscriptionSourceConfig.OUTPUT_FIELDS, "id,date,fabricationId,weight");
+      sourceProperties.put(PLCSubscriptionSourceConfig.OUTPUT_FIELDS+".id", "STRING");
+      sourceProperties.put(PLCSubscriptionSourceConfig.OUTPUT_FIELDS+".date", "STRING");
+      sourceProperties.put(PLCSubscriptionSourceConfig.OUTPUT_FIELDS+".fabricationId", "STRING");
+      sourceProperties.put(PLCSubscriptionSourceConfig.OUTPUT_FIELDS+".weight", "STRING");
+      sourceProperties.put(PLCSubscriptionSourceConfig.OUTPUT_FIELDS+".operation.subfield", "STRING");
+      sourceProperties.put(PLCSubscriptionSourceConfig.OUTPUT_FIELDS+".operation.details.subsubfield", "STRING");
+
       sourceProperties.put(PLCSubscriptionSourceConfig.OUTPUT_KEY, "id,fabricationId");
       sourceProperties.put(PLCSubscriptionSourceConfig.PLC_CONNECTION_STRING, "myConnectionString");
       sourceProperties.put(PLCSubscriptionSourceConfig.KAFKA_TOPIC, "output_topic");
+
+
       sourceProperties.put("plc.subscriptions.machine1.path", "ns=2;s=Fabrication_Id_1:STRING");
       sourceProperties.put("plc.subscriptions.machine2.path", "ns=2;s=Fabrication_Id_2:STRING");
       sourceProperties.put("plc.subscriptions.machine3.path", "ns=2;s=Fabrication_Id_3:STRING");
+
       sourceProperties.put("plc.mappings.machine1.id.path", "ns=2;s=Id_1:STRING");
       sourceProperties.put("plc.mappings.machine1.date.path", "ns=2;s=Fabrication_Date_1:STRING");
-      sourceProperties.put(
-          "plc.mappings.machine1.fabricationId.path", "ns=2;s=Fabrication_Id_1:STRING");
-      sourceProperties.put(
-          "plc.mappings.machine1.weight.path", "ns=2;s=Fabrication_Weight_1:STRING");
+      sourceProperties.put("plc.mappings.machine1.fabricationId.path", "ns=2;s=Fabrication_Id_1:STRING");
+      sourceProperties.put("plc.mappings.machine1.weight.path", "ns=2;s=Fabrication_Weight_1:STRING");
+      sourceProperties.put("plc.mappings.machine1.subfield.path", "ns=2;s=SubField_1:STRING");
+      sourceProperties.put("plc.mappings.machine1.subsubfield.path", "ns=2;s=SubSubField_1:STRING");
 
       sourceProperties.put("plc.mappings.machine2.id.path", "ns=2;s=Id_2:STRING");
       sourceProperties.put("plc.mappings.machine2.date.path", "ns=2;s=Fabrication_Date_2:STRING");
-      sourceProperties.put(
-          "plc.mappings.machine2.fabricationId.path", "ns=2;s=Fabrication_Id_2:STRING");
-      sourceProperties.put(
-          "plc.mappings.machine2.weight.path", "ns=2;s=Fabrication_Weight_2:STRING");
+      sourceProperties.put("plc.mappings.machine2.fabricationId.path", "ns=2;s=Fabrication_Id_2:STRING");
+      sourceProperties.put("plc.mappings.machine2.weight.path", "ns=2;s=Fabrication_Weight_2:STRING");
+      sourceProperties.put("plc.mappings.machine2.subfield.path", "ns=2;s=SubField_2:STRING");
+      sourceProperties.put("plc.mappings.machine2.subsubfield.path", "ns=2;s=SubSubField_2:STRING");
+
       sourceProperties.put("plc.mappings.machine3.id.path", "ns=2;s=Id_3:STRING");
       sourceProperties.put("plc.mappings.machine3.date.path", "ns=2;s=Fabrication_Date_3:STRING");
-      sourceProperties.put(
-          "plc.mappings.machine3.fabricationId.path", "ns=2;s=Fabrication_Id_3:STRING");
-      sourceProperties.put(
-          "plc.mappings.machine3.weight.path", "ns=2;s=Fabrication_Weight_3:STRING");
+      sourceProperties.put("plc.mappings.machine3.fabricationId.path", "ns=2;s=Fabrication_Id_3:STRING");
+      sourceProperties.put("plc.mappings.machine3.weight.path", "ns=2;s=Fabrication_Weight_3:STRING");
+      sourceProperties.put("plc.mappings.machine3.subfield.path", "ns=2;s=SubField_3:STRING");
+      sourceProperties.put("plc.mappings.machine3.subsubfield.path", "ns=2;s=SubSubField_3:STRING");
 
       // Prepare mocks
       PlcConnection connectionMock = mock(PlcConnection.class);
       PlcReadRequest.Builder readRequestBuilderMock = mock(PlcReadRequest.Builder.class);
       PlcReadRequest readRequestMock = mock(PlcReadRequest.class);
       PlcReadResponse response = mock(PlcReadResponse.class);
-      PlcSubscriptionHandle subscriptionHandleMock = mock(PlcSubscriptionHandle.class);
 
       PlcConnectionMetadata metadata =
           new PlcConnectionMetadata() {
@@ -117,8 +125,8 @@ public class PLCSubscriptionSourceTaskTest {
 
       // Verify mocks
 
-      // 12 fields requested with read requests (4 for each subscription)
-      verify(readRequestBuilderMock, times(12)).addItem(anyString(), anyString());
+      // 18 fields requested with read requests (6 for each subscription)
+      verify(readRequestBuilderMock, times(18)).addItem(anyString(), anyString());
 
       var result = runner.getNewEvents();
       assertEquals(result.size(), 0);
@@ -129,17 +137,20 @@ public class PLCSubscriptionSourceTaskTest {
       readFuture3.complete(response);
 
       result = runner.getNewEvents();
-      assertEquals(result.size(), 3);
+      assertEquals(3, result.size());
 
       var sourceRecord = result.get(0);
       var data = (Struct) sourceRecord.value();
 
       assertEquals(sourceRecord.topic(), "output_topic");
-      assertEquals(sourceRecord.key(), "8#5");
-      assertEquals(data.get("id"), "8");
-      assertEquals(data.get("date"), "6");
+      assertEquals("7#5", sourceRecord.key());
+      assertEquals(data.get("id"), "7");
+      assertEquals(data.get("date"), "8");
       assertEquals(data.get("fabricationId"), "5");
-      assertEquals(data.get("weight"), "7");
+      assertEquals(data.get("weight"), "9");
+      assertEquals( ((Struct)data.get("operation")).get("subfield"), "10");
+      assertEquals( ((Struct)((Struct)data.get("operation")).get("details")).get("subsubfield"), "6");
+
     }
   }
 }
