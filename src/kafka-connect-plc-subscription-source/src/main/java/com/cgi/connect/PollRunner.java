@@ -20,6 +20,9 @@ import org.apache.plc4x.java.api.messages.PlcReadResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Scheduled runner holding the business logic
+ */
 public class PollRunner implements Runnable {
   private static final Logger log = LoggerFactory.getLogger(PollRunner.class);
 

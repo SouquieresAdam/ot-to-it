@@ -8,8 +8,8 @@ public class ConnectionManager {
 
   /**
    * @param connectionString the connection string to PlcConnection
-   * @returna PlcConnection
-   * @throws PlcConnectionException
+   * @return PlcConnection
+   * @throws PlcConnectionException in case of issue with connection process
    */
   public static PlcConnection getConnection(String connectionString) throws PlcConnectionException {
     return new PlcDriverManager().getConnection(connectionString);

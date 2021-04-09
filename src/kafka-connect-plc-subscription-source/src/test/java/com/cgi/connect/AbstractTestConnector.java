@@ -18,7 +18,6 @@ public abstract class AbstractTestConnector {
 
   private static final Logger log = LoggerFactory.getLogger(AbstractTestConnector.class);
 
-  protected static final long CONSUME_MAX_DURATION_MS = TimeUnit.SECONDS.toMillis(5);
   protected static final long CONNECTOR_STARTUP_DURATION_MS = TimeUnit.SECONDS.toMillis(60);
 
   protected EmbeddedConnectCluster connect;

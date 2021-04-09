@@ -28,6 +28,11 @@ public class PLCSubscriptionSourceTask extends SourceTask {
     return VersionUtil.getVersion();
   }
 
+
+  /**
+   * Task initialisation from configuration
+   * @param config the map of properties
+   */
   @Override
   public void start(Map<String, String> config) {
     var pollInterval = Integer.parseInt(config.get(PLC_POLL_INTERVAL));

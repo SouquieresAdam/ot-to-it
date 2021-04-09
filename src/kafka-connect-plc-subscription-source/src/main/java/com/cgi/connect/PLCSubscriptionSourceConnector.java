@@ -13,7 +13,6 @@ public class PLCSubscriptionSourceConnector extends SourceConnector {
 
   private static final Logger log = LoggerFactory.getLogger(PLCSubscriptionSourceConnector.class);
   private static final String CONNECTOR_NAME = PLCSubscriptionSourceConnector.class.getSimpleName();
-  private PLCSubscriptionSourceConfig config;
   private Map<String, String> extendedConfig;
 
   @Override
@@ -25,7 +24,7 @@ public class PLCSubscriptionSourceConnector extends SourceConnector {
   @Override
   public void start(Map<String, String> map) {
     log.info("The {} has been started.", CONNECTOR_NAME);
-    this.config = new PLCSubscriptionSourceConfig(map);
+    new PLCSubscriptionSourceConfig(map);
     this.extendedConfig = map;
   }
 

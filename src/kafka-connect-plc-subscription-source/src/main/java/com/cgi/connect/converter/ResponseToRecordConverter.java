@@ -14,7 +14,7 @@ public class ResponseToRecordConverter {
    * Return a kafka SourceRecord from a PlcReadResponse
    *
    * @param response a PLC read response
-   * @param fieldTreeElements
+   * @param fieldTreeElements the tree structure of configured fields
    * @return a SourceRecord
    */
   public static SourceRecord convert(
@@ -27,10 +27,7 @@ public class ResponseToRecordConverter {
     Struct outputValue = new Struct(outputSchema);
 
     mapping.forEach(
-        mappingPair -> {
-            fillSchema(outputValue, fieldTreeElements, mappingPair.getKey(), response, 0);
-          ;
-        });
+        mappingPair -> fillSchema(outputValue, fieldTreeElements, mappingPair.getKey(), response, 0));
 
     // Build output record key
     var key =

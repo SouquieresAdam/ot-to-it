@@ -6,7 +6,7 @@ import java.util.Set;
 public class TreeElement {
 
   private TreeElement parent;
-  private String id;
+  private final String id;
   private String type;
   private int depth = 0;
   private final Set<TreeElement> children = new HashSet<>();
@@ -35,10 +35,6 @@ public class TreeElement {
     return id;
   }
 
-  public void setId(String id) {
-    this.id = id;
-  }
-
   public static TreeElement of(String id) {
     return new TreeElement(id);
   }
@@ -47,9 +43,8 @@ public class TreeElement {
     this.id = id;
   }
 
-  public TreeElement addChild(TreeElement child) {
+  public void addChild(TreeElement child) {
     this.children.add(child);
-    return this;
   }
 
   public boolean isRoot() {

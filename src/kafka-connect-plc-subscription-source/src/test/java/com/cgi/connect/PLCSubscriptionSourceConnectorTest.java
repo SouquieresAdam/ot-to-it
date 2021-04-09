@@ -26,7 +26,6 @@ public class PLCSubscriptionSourceConnectorTest extends EasyMockSupport {
 
     sourceProperties = new HashMap<>();
     sourceProperties.put(PLCSubscriptionSourceConfig.SUBSCRIPTIONS, "tag1,tag2");
-    sourceProperties.put(PLCSubscriptionSourceConfig.OUTPUT_FIELDS, "field1,field2,field3");
     sourceProperties.put(PLCSubscriptionSourceConfig.OUTPUT_KEY, "field1,field2");
     sourceProperties.put(PLCSubscriptionSourceConfig.PLC_CONNECTION_STRING, "myConnectionString");
     sourceProperties.put(PLCSubscriptionSourceConfig.KAFKA_TOPIC, "output_topic");

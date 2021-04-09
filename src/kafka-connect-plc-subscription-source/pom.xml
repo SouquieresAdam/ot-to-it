@@ -77,7 +77,6 @@
       <groupId>org.apache.plc4x</groupId>
       <artifactId>plc4j-driver-opcua</artifactId>
       <version>${plc4x.version}</version>
-      <scope>runtime</scope>
     </dependency>
     
     <dependency>
