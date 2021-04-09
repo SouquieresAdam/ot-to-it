@@ -13,7 +13,6 @@ import org.apache.plc4x.java.api.exceptions.PlcConnectionException;
 import org.apache.plc4x.java.api.messages.PlcReadRequest;
 import org.apache.plc4x.java.api.messages.PlcReadResponse;
 import org.apache.plc4x.java.api.metadata.PlcConnectionMetadata;
-import org.apache.plc4x.java.api.model.PlcSubscriptionHandle;
 import org.easymock.EasyMock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,17 +39,18 @@ public class PLCSubscriptionSourceTaskTest {
 
       var sourceProperties = new HashMap<String, String>();
       sourceProperties.put(PLCSubscriptionSourceConfig.SUBSCRIPTIONS, "machine1,machine2,machine3");
-      sourceProperties.put(PLCSubscriptionSourceConfig.OUTPUT_FIELDS+".id", "STRING");
-      sourceProperties.put(PLCSubscriptionSourceConfig.OUTPUT_FIELDS+".date", "STRING");
-      sourceProperties.put(PLCSubscriptionSourceConfig.OUTPUT_FIELDS+".fabricationId", "STRING");
-      sourceProperties.put(PLCSubscriptionSourceConfig.OUTPUT_FIELDS+".weight", "STRING");
-      sourceProperties.put(PLCSubscriptionSourceConfig.OUTPUT_FIELDS+".operation.subfield", "STRING");
-      sourceProperties.put(PLCSubscriptionSourceConfig.OUTPUT_FIELDS+".operation.details.subsubfield", "STRING");
+      sourceProperties.put(PLCSubscriptionSourceConfig.OUTPUT_FIELDS + ".id", "STRING");
+      sourceProperties.put(PLCSubscriptionSourceConfig.OUTPUT_FIELDS + ".date", "STRING");
+      sourceProperties.put(PLCSubscriptionSourceConfig.OUTPUT_FIELDS + ".fabricationId", "STRING");
+      sourceProperties.put(PLCSubscriptionSourceConfig.OUTPUT_FIELDS + ".weight", "STRING");
+      sourceProperties.put(
+          PLCSubscriptionSourceConfig.OUTPUT_FIELDS + ".operation.mixing.mixingDuration", "FLOAT");
+      sourceProperties.put(
+          PLCSubscriptionSourceConfig.OUTPUT_FIELDS + ".operation.curing.curingDuration", "FLOAT");
 
       sourceProperties.put(PLCSubscriptionSourceConfig.OUTPUT_KEY, "id,fabricationId");
       sourceProperties.put(PLCSubscriptionSourceConfig.PLC_CONNECTION_STRING, "myConnectionString");
       sourceProperties.put(PLCSubscriptionSourceConfig.KAFKA_TOPIC, "output_topic");
-
 
       sourceProperties.put("plc.subscriptions.machine1.path", "ns=2;s=Fabrication_Id_1:STRING");
       sourceProperties.put("plc.subscriptions.machine2.path", "ns=2;s=Fabrication_Id_2:STRING");
@@ -58,24 +58,36 @@ public class PLCSubscriptionSourceTaskTest {
 
       sourceProperties.put("plc.mappings.machine1.id.path", "ns=2;s=Id_1:STRING");
       sourceProperties.put("plc.mappings.machine1.date.path", "ns=2;s=Fabrication_Date_1:STRING");
-      sourceProperties.put("plc.mappings.machine1.fabricationId.path", "ns=2;s=Fabrication_Id_1:STRING");
-      sourceProperties.put("plc.mappings.machine1.weight.path", "ns=2;s=Fabrication_Weight_1:STRING");
-      sourceProperties.put("plc.mappings.machine1.subfield.path", "ns=2;s=SubField_1:STRING");
-      sourceProperties.put("plc.mappings.machine1.subsubfield.path", "ns=2;s=SubSubField_1:STRING");
+      sourceProperties.put(
+          "plc.mappings.machine1.fabricationId.path", "ns=2;s=Fabrication_Id_1:STRING");
+      sourceProperties.put(
+          "plc.mappings.machine1.weight.path", "ns=2;s=Fabrication_Weight_1:STRING");
+      sourceProperties.put(
+          "plc.mappings.machine1.mixingDuration.path", "ns=2;s=Mixing_Duration_1:FLOAT");
+      sourceProperties.put(
+          "plc.mappings.machine1.curingDuration.path", "ns=2;s=Curing_Duration_1:FLOAT");
 
       sourceProperties.put("plc.mappings.machine2.id.path", "ns=2;s=Id_2:STRING");
       sourceProperties.put("plc.mappings.machine2.date.path", "ns=2;s=Fabrication_Date_2:STRING");
-      sourceProperties.put("plc.mappings.machine2.fabricationId.path", "ns=2;s=Fabrication_Id_2:STRING");
-      sourceProperties.put("plc.mappings.machine2.weight.path", "ns=2;s=Fabrication_Weight_2:STRING");
-      sourceProperties.put("plc.mappings.machine2.subfield.path", "ns=2;s=SubField_2:STRING");
-      sourceProperties.put("plc.mappings.machine2.subsubfield.path", "ns=2;s=SubSubField_2:STRING");
+      sourceProperties.put(
+          "plc.mappings.machine2.fabricationId.path", "ns=2;s=Fabrication_Id_2:STRING");
+      sourceProperties.put(
+          "plc.mappings.machine2.weight.path", "ns=2;s=Fabrication_Weight_2:STRING");
+      sourceProperties.put(
+          "plc.mappings.machine2.mixingDuration.path", "ns=2;s=Mixing_Duration_2:FLOAT");
+      sourceProperties.put(
+          "plc.mappings.machine2.curingDuration.path", "ns=2;s=Curing_Duration_2:FLOAT");
 
       sourceProperties.put("plc.mappings.machine3.id.path", "ns=2;s=Id_3:STRING");
       sourceProperties.put("plc.mappings.machine3.date.path", "ns=2;s=Fabrication_Date_3:STRING");
-      sourceProperties.put("plc.mappings.machine3.fabricationId.path", "ns=2;s=Fabrication_Id_3:STRING");
-      sourceProperties.put("plc.mappings.machine3.weight.path", "ns=2;s=Fabrication_Weight_3:STRING");
-      sourceProperties.put("plc.mappings.machine3.subfield.path", "ns=2;s=SubField_3:STRING");
-      sourceProperties.put("plc.mappings.machine3.subsubfield.path", "ns=2;s=SubSubField_3:STRING");
+      sourceProperties.put(
+          "plc.mappings.machine3.fabricationId.path", "ns=2;s=Fabrication_Id_3:STRING");
+      sourceProperties.put(
+          "plc.mappings.machine3.weight.path", "ns=2;s=Fabrication_Weight_3:STRING");
+      sourceProperties.put(
+          "plc.mappings.machine3.mixingDuration.path", "ns=2;s=Mixing_Duration_3:FLOAT");
+      sourceProperties.put(
+          "plc.mappings.machine3.curingDuration.path", "ns=2;s=Curing_Duration_3:FLOAT");
 
       // Prepare mocks
       PlcConnection connectionMock = mock(PlcConnection.class);
@@ -114,6 +126,8 @@ public class PLCSubscriptionSourceTaskTest {
       when(readRequestMock.execute()).thenReturn(readFuture, readFuture2, readFuture3);
       when(response.getString(anyString()))
           .thenReturn("1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
+      when(response.getFloat(anyString()))
+              .thenReturn(1f, 2f);
 
       var runner = new PollRunner();
       runner.configure(sourceProperties);
@@ -143,14 +157,15 @@ public class PLCSubscriptionSourceTaskTest {
       var data = (Struct) sourceRecord.value();
 
       assertEquals(sourceRecord.topic(), "output_topic");
-      assertEquals("7#5", sourceRecord.key());
-      assertEquals(data.get("id"), "7");
-      assertEquals(data.get("date"), "8");
+      assertEquals("6#5", sourceRecord.key());
+      assertEquals(data.get("id"), "6");
+      assertEquals(data.get("date"), "7");
       assertEquals(data.get("fabricationId"), "5");
-      assertEquals(data.get("weight"), "9");
-      assertEquals( ((Struct)data.get("operation")).get("subfield"), "10");
-      assertEquals( ((Struct)((Struct)data.get("operation")).get("details")).get("subsubfield"), "6");
-
+      assertEquals(data.get("weight"), "8");
+      assertEquals(
+          ((Struct) ((Struct) data.get("operation")).get("mixing")).get("mixingDuration"), 2.0d);
+      assertEquals(
+          ((Struct) ((Struct) data.get("operation")).get("curing")).get("curingDuration"), 1.0d);
     }
   }
 }

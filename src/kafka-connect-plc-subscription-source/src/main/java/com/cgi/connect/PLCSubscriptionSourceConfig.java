@@ -8,6 +8,8 @@ import org.apache.kafka.common.config.ConfigDef.Type;
 
 public class PLCSubscriptionSourceConfig extends AbstractConfig {
 
+  public static final String OUTPUT_FIELDS = "plc.output.fields";
+
   public static final String KAFKA_TOPIC = "topic";
   private static final String KAFKA_TOPIC_DOC = "The Kafka topic to write the data to.";
 

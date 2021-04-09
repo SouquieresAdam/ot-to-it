@@ -6,18 +6,17 @@ import static com.cgi.connect.PLCSubscriptionSourceConfig.PLC_CONNECTION_STRING;
 import com.cgi.connect.config.ConfigExtractor;
 import com.cgi.connect.config.ConnectionManager;
 import com.cgi.connect.converter.ResponseToRecordConverter;
+import com.cgi.connect.converter.SchemaGenerator;
+import com.cgi.connect.converter.TreeElement;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
-
-import com.cgi.connect.converter.SchemaGenerator;
-import com.cgi.connect.converter.TreeElement;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.connect.data.Schema;
-import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.plc4x.java.api.PlcConnection;
 import org.apache.plc4x.java.api.exceptions.PlcConnectionException;
+import org.apache.plc4x.java.api.messages.PlcReadResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +26,7 @@ public class PollRunner implements Runnable {
   private String kafkaTopic;
   private List<String> keyComposition;
   private LinkedBlockingQueue<SourceRecord> eventQueue;
-  private Map<String, String> valueBuffer;
+  private Map<String, Object> valueBuffer;
   private List<String> subscriptions;
   private Map<String, List<Pair<String, String>>> mappings;
   private Map<String, String> subscriptionPath;
@@ -51,7 +50,6 @@ public class PollRunner implements Runnable {
 
     fieldTreeElements = SchemaGenerator.buildFieldTree(config);
     outputSchema = SchemaGenerator.generate(fieldTreeElements);
-
 
     this.plcConnection = ConnectionManager.getConnection(plcConnectionString);
 
@@ -93,7 +91,7 @@ public class PollRunner implements Runnable {
       var subField =
           subscriptionMapping.stream()
               .filter(pair -> pair.getValue().equals(subPath))
-              .map(pair -> pair.getKey())
+              .map(Pair::getKey)
               .findFirst()
               .get();
 
@@ -108,7 +106,7 @@ public class PollRunner implements Runnable {
           (response, throwable) -> {
             if (response != null) {
 
-              var newValue = response.getString(subField);
+              var newValue = extractFieldFromResponse(response, subField);
               var currentValue = valueBuffer.get(subPath);
 
               // First Value is kept as memory an will be the first reference value
@@ -125,7 +123,12 @@ public class PollRunner implements Runnable {
               valueBuffer.put(subPath, newValue);
               var sourceRecord =
                   ResponseToRecordConverter.convert(
-                      response, kafkaTopic, outputSchema, subscriptionMapping, keyComposition, fieldTreeElements);
+                      response,
+                      kafkaTopic,
+                      outputSchema,
+                      subscriptionMapping,
+                      keyComposition,
+                      fieldTreeElements);
               try {
                 eventQueue.put(sourceRecord);
               } catch (InterruptedException e) {
@@ -137,4 +140,19 @@ public class PollRunner implements Runnable {
           });
     }
   }
+
+  private Object extractFieldFromResponse(PlcReadResponse response, String key) {
+
+    var fieldType = fieldTreeElements.get(key).getType();
+
+    switch (fieldType) {
+      case "FLOAT":
+        return response.getFloat(key);
+      case "STRING":
+      default:
+        return response.getString(key);
+    }
+
+  }
+
 }
